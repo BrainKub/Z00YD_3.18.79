@@ -773,19 +773,27 @@
 			#size-cells = <0>;
 		};
 
-		touch: touch@ {
+		touch: touch {
 			compatible = "mediatek,mt6580-touch";
 			vtouch-supply = <&mt_pmic_vgp1_ldo_reg>;
+		};
+		
+		mse: mse {
+			compatible = "mediatek,mt6580-mse";
+		};
+
+		accdet: accdet {
+			compatible = "mediatek,mt6580-accdet";
+		};
+		
+		hall_1: hall_1 {
+			compatible = "mediatek,mt6580-hall_1";
 		};
 
  		touch_panel: touch_panel {
  			compatible = "mediatek,mt6580-touch_panel";
 			vtouch-supply = <&mt_pmic_vgp1_ldo_reg>;
  		};
-
-		accdet: accdet {
-			compatible = "mediatek,mt6580-accdet";
-		};
 
 		gse_1: gse_1 {
 			compatible = "mediatek, gse_1-eint";
