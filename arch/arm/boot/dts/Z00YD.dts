@@ -168,7 +168,7 @@
 	pinctl_ddr50 = <&mmc1_pins_ddr50>;
 	register_setting = <&mmc1_register_setting_default>;
 	host_function = /bits/ 8 <MSDC_SD>;
-	cd_level = /bits/ 8 <MSDC_CD_LOW>;
+	cd_level = /bits/ 8 <MSDC_CD_HIGH>;
 	cd-gpios = <&pio 3 0>;
 	status = "okay";
 };
@@ -679,7 +679,7 @@
 	gpslna_pins_init: gpslna@0 {
 
 		pins_cmd_dat {
-			pins = <PINMUX_GPIO67__FUNC_GPIO67>;
+			pins = <PINMUX_GPIO1__FUNC_GPIO1>;
 			slew-rate = <0>;
 			bias-disable;
 			output-low;
@@ -689,7 +689,7 @@
 	gpslna_pins_oh: gpslna@1 {
 
 		pins_cmd_dat {
-			pins = <PINMUX_GPIO67__FUNC_GPIO67>;
+			pins = <PINMUX_GPIO1__FUNC_GPIO1>;
 			slew-rate = <1>;
 			output-high;
 		};
@@ -698,7 +698,7 @@
 	gpslna_pins_ol: gpslna@2 {
 
 		pins_cmd_dat {
-			pins = <PINMUX_GPIO67__FUNC_GPIO67>;
+			pins = <PINMUX_GPIO1__FUNC_GPIO1>;
 			slew-rate = <1>;
 			output-low;
 		};
