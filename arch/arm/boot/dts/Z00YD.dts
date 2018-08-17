@@ -83,10 +83,10 @@
 
 &i2c2 {
 /* start sensor */
-	gsensor@4c {
+	gsensor@0e {
 		i2c_num = <2>;
-		i2c_addr = <0x4c 0 0 0>;
-		direction = <2>;
+		i2c_addr = <0x0e 0 0 0>;
+		direction = <0>;
 		power_id = <0xffff>;
 		power_vol = <0>;
 		firlen = <0>;
