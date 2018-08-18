@@ -79,6 +79,8 @@ typedef enum KD_REGULATOR_TYPE_TAG {
 	VCAMD,
 	VCAMIO,
 	VCAMAF,
+ 	VCAMD_SUB,
+	VGP3,
 } KD_REGULATOR_TYPE_T;
 
 typedef enum {
@@ -100,3 +102,4 @@ int mtkcam_gpio_set(int PinIdx, int PwrType, int Val);
 int mtkcam_gpio_init(struct platform_device *pdev);
 
 #endif
+

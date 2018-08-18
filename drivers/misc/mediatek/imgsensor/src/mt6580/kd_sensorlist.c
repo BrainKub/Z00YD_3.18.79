@@ -65,7 +65,6 @@ char mtk_ccm_name[camera_info_size] = { 0 };
 #define PROC_CAMERA_INFOS "driver/camera_infos"
 #define camera_infos_size 128
 char g_cam_infos[camera_infos_size] = {0};
-#define FEATURE_CONTROL_MAX_DATA_SIZE 128000
 
 static unsigned int gDrvIndex;
 int cntPWROnMain = 0;
@@ -106,6 +105,7 @@ struct regulator *regVCAMD = NULL;
 struct regulator *regVCAMIO = NULL;
 struct regulator *regVCAMAF = NULL;
 struct regulator *regSubVCAMD = NULL;
+struct regulator *regVGP3 = NULL;
 #endif
 #define SENSOR_WR32(addr, data)    mt65xx_reg_sync_writel(data, addr)	/* For 89 Only.   // NEED_TUNING_BY_PROJECT */
 /* #define SENSOR_WR32(addr, data)    iowrite32(data, addr)    // For 89 Only.   // NEED_TUNING_BY_PROJECT */
@@ -1324,11 +1324,12 @@ kdModulePowerOn(CAMERA_DUAL_CAMERA_SENSOR_ENUM socketIdx[KDIMGSENSOR_MAX_INVOKE_
 
 	for (i = KDIMGSENSOR_INVOKE_DRIVER_0; i < KDIMGSENSOR_MAX_INVOKE_DRIVERS; i++) {
 		if (g_bEnableDriver[i]) {
-			/* PK_XLOG_INFO("[%s][%d][%d][%s][%s]\r\n",__FUNCTION__,g_bEnableDriver[i],socketIdx[i],sensorNameStr[i],mode_name); */
+			 PK_ERR("[%s][%d][%d][%s][%s]\r\n",__FUNCTION__,g_bEnableDriver[i],socketIdx[i],sensorNameStr[i],mode_name);
 #ifndef CONFIG_FPGA_EARLY_PORTING
 			ret = _kdCISModulePowerOn(socketIdx[i], sensorNameStr[i], On, mode_name);
 #endif
 			if (ERROR_NONE != ret) {
+PK_ERR("ERROR moduleon[%s][%d][%d][%s][%s]\r\n",__FUNCTION__,g_bEnableDriver[i],socketIdx[i],sensorNameStr[i],mode_name);
 				PK_ERR("[%s]", __func__);
 				return ret;
 			}
@@ -1418,7 +1419,7 @@ int kdSetDriver(unsigned int *pDrvIndex)
 			       sizeof(pSensorList[drvIdx[i]].drvname));
 			/* return sensor ID */
 			/* pDrvIndex[0] = (unsigned int)pSensorList[drvIdx].SensorId; */
-			PK_INF("[%d][%d][%d][%s][%d]\n", i, g_bEnableDriver[i],
+			PK_ERR("[%d][%d][%d][%s][%d]\n", i, g_bEnableDriver[i],
 			       g_invokeSocketIdx[i], g_invokeSensorNameStr[i],
 			       sizeof(pSensorList[drvIdx[i]].drvname));
 		}
@@ -2203,11 +2204,6 @@ static inline int adopt_CAMERA_HW_FeatureControl(void *pBuf)
 		PK_ERR(" ioctl copy from user failed\n");
 		return -EFAULT;
 	}
-	/* data size exam */
-	if (FeatureParaLen > FEATURE_CONTROL_MAX_DATA_SIZE) {
-		PK_ERR(" exceed data size limitation\n");
-		return -EFAULT;
-	}
 
 	pFeaturePara = kmalloc(FeatureParaLen, GFP_KERNEL);
 	if (NULL == pFeaturePara) {
@@ -2901,9 +2897,14 @@ static inline int kdSetSensorMclk(int *pBuf)
 	PK_DBG("[CAMERA SENSOR] kdSetSensorMclk on=%d, freq= %d\n", pSensorCtrl->on,
 	       pSensorCtrl->freq);
 	if (1 == pSensorCtrl->on) {
+		enable_mux(MT_CLKMUX_CAM_MUX_SEL, "CAMERA_SENSOR");
+		enable_mux(MT_CLKMUX_SCAM_MUX_SEL, "CAMERA_SENSOR");
 		clkmux_sel(MT_CLKMUX_CAM_MUX_SEL,
 			   pSensorCtrl->freq == MCLK_48MHZ_GROUP ? CAM_PLL_48MHZ : CAM_PLL_52MHZ,
 			   "CAMERA_SENSOR");
+	} else {
+		disable_mux(MT_CLKMUX_SCAM_MUX_SEL, "CAMERA_SENSOR");
+		disable_mux(MT_CLKMUX_CAM_MUX_SEL, "CAMERA_SENSOR");
 	}
 	return ret;
 /* #endif */
@@ -3048,6 +3049,9 @@ bool Get_Cam_Regulator(void)
 				if (regVCAMAF == NULL) {
 					regVCAMAF = regulator_get(sensor_device, "vcamaf");
 				}
+                                if (regVGP3 == NULL) {
+						regVGP3 = regulator_get(sensor_device, "vgp3");//stas
+				}
 			} else {
 				/* backup original dev.of_node */
 				kd_node = sensor_device->of_node;
@@ -3055,11 +3059,6 @@ bool Get_Cam_Regulator(void)
 				sensor_device->of_node =
 				    of_find_compatible_node(NULL, NULL,
 							    "mediatek,camera_hw");
-				/* 若你需要sub也定義的話，需要自己加上
-				   if (regVCAMA == NULL) {
-				   regVCAMA_SUB = regulator_get(sensor_device, "SUB_CAMERA_POWER_A");
-				   }
-				 */
 				if (regVCAMA == NULL) {
 						regVCAMA = regulator_get(sensor_device, "vcama");
 				}
@@ -3068,6 +3067,9 @@ bool Get_Cam_Regulator(void)
 				}
 				if (regSubVCAMD == NULL) {
 						regSubVCAMD = regulator_get(sensor_device, "vcamd_sub");
+				}
+				if (regVGP3 == NULL) {
+						regVGP3 = regulator_get(sensor_device, "vgp3");//stas
 				}
 				if (regVCAMIO == NULL) {
 						regVCAMIO = regulator_get(sensor_device, "vcamio");
@@ -3103,7 +3105,9 @@ bool _hwPowerOn(KD_REGULATOR_TYPE_T type, int powerVolt)
 		reg = regVCAMIO;
 	} else if (type == VCAMAF) {
 		reg = regVCAMAF;
-	} else
+	} else if (type == VGP3)
+        {reg = regVGP3;}//stas
+ 	 else
 		return ret;
 
 	if (!IS_ERR(reg)) {
@@ -3140,7 +3144,9 @@ bool _hwPowerDown(KD_REGULATOR_TYPE_T type)
 		reg = regVCAMIO;
 	} else if (type == VCAMAF) {
 		reg = regVCAMAF;
-	} else
+	} else if (type == VGP3)
+        {reg = regVGP3;}//stas
+	else
 		return ret;
 
 	if (!IS_ERR(reg)) {
@@ -3603,7 +3609,7 @@ static long CAMERA_HW_Ioctl(struct file *a_pstFile,
 		break;
 
 	case KDIMGSENSORIOC_X_SET_SHUTTER_GAIN_WAIT_DONE:
-		/* i4RetValue = kdSensorSetExpGainWaitDone((int *)pBuff); */
+		i4RetValue = kdSensorSetExpGainWaitDone((int *)pBuff);
 		break;
 
 	case KDIMGSENSORIOC_X_SET_CURRENT_SENSOR:
@@ -3679,9 +3685,6 @@ static int CAMERA_HW_Open(struct inode *a_pstInode, struct file *a_pstFile)
 
 	/*  */
 	atomic_inc(&g_CamDrvOpenCnt);
-	enable_mux(MT_CLKMUX_CAM_MUX_SEL, "CAMERA_SENSOR");
-	enable_mux(MT_CLKMUX_SCAM_MUX_SEL, "CAMERA_SENSOR");
-
 	return 0;
 }
 
@@ -3698,8 +3701,6 @@ static int CAMERA_HW_Release(struct inode *a_pstInode, struct file *a_pstFile)
 	atomic_dec(&g_CamDrvOpenCnt);
 	/* if (atomic_read(&g_CamDrvOpenCnt) == 0) */
 	checkPowerBeforeClose(CAMERA_HW_DRVNAME1);
-	disable_mux(MT_CLKMUX_SCAM_MUX_SEL, "CAMERA_SENSOR");
-	disable_mux(MT_CLKMUX_CAM_MUX_SEL, "CAMERA_SENSOR");
 
 	return 0;
 }
@@ -4702,3 +4703,4 @@ module_exit(CAMERA_HW_i2C_exit);
 MODULE_DESCRIPTION("CAMERA_HW driver");
 MODULE_AUTHOR("Jackie Su <jackie.su@Mediatek.com>");
 MODULE_LICENSE("GPL");
+
