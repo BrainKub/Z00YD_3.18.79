@@ -105,7 +105,7 @@ struct regulator *regVCAMD = NULL;
 struct regulator *regVCAMIO = NULL;
 struct regulator *regVCAMAF = NULL;
 struct regulator *regSubVCAMD = NULL;
-struct regulator *regVGP3 = NULL;
+struct regulator *regVGP2 = NULL;
 #endif
 #define SENSOR_WR32(addr, data)    mt65xx_reg_sync_writel(data, addr)	/* For 89 Only.   // NEED_TUNING_BY_PROJECT */
 /* #define SENSOR_WR32(addr, data)    iowrite32(data, addr)    // For 89 Only.   // NEED_TUNING_BY_PROJECT */
@@ -3049,8 +3049,8 @@ bool Get_Cam_Regulator(void)
 				if (regVCAMAF == NULL) {
 					regVCAMAF = regulator_get(sensor_device, "vcamaf");
 				}
-                                if (regVGP3 == NULL) {
-						regVGP3 = regulator_get(sensor_device, "vgp3");//stas
+                                if (regVGP2 == NULL) {
+						regVGP2 = regulator_get(sensor_device, "vgp2");//BrainKub
 				}
 			} else {
 				/* backup original dev.of_node */
@@ -3068,8 +3068,8 @@ bool Get_Cam_Regulator(void)
 				if (regSubVCAMD == NULL) {
 						regSubVCAMD = regulator_get(sensor_device, "vcamd_sub");
 				}
-				if (regVGP3 == NULL) {
-						regVGP3 = regulator_get(sensor_device, "vgp3");//stas
+				if (regVGP2 == NULL) {
+						regVGP2 = regulator_get(sensor_device, "vgp2");//BrainKub
 				}
 				if (regVCAMIO == NULL) {
 						regVCAMIO = regulator_get(sensor_device, "vcamio");
@@ -3105,8 +3105,8 @@ bool _hwPowerOn(KD_REGULATOR_TYPE_T type, int powerVolt)
 		reg = regVCAMIO;
 	} else if (type == VCAMAF) {
 		reg = regVCAMAF;
-	} else if (type == VGP3)
-        {reg = regVGP3;}//stas
+	} else if (type == VGP2)
+        {reg = regVGP2;}//BrainKub
  	 else
 		return ret;
 
@@ -3144,8 +3144,8 @@ bool _hwPowerDown(KD_REGULATOR_TYPE_T type)
 		reg = regVCAMIO;
 	} else if (type == VCAMAF) {
 		reg = regVCAMAF;
-	} else if (type == VGP3)
-        {reg = regVGP3;}//stas
+	} else if (type == VGP2)
+        {reg = regVGP2;}//BrainKub
 	else
 		return ret;
 

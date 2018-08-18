@@ -127,8 +127,8 @@
 		power_vol = <0>;
         als_level = <10 20 36 59 80 120 180 260 450 845 1136 1545 2364 4655 6982>;
 		als_value = <0 10 40 65 90 145 225 300 550 930 1250 1700 2600 5120 7680 10240>;
-		ps_threshold_high =  <1700>;
-		ps_threshold_low =  <1500>;
+		ps_threshold_high =  <1056>;
+		ps_threshold_low =  <1036>;
 		state_val = <0>;
 		psctrl_val = <49>;
 		alsctrl_val = <57>;

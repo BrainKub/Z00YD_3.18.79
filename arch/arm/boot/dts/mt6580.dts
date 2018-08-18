@@ -1283,7 +1283,7 @@
 			vcamd-supply = <&mt_pmic_vcamd_ldo_reg>;
 			vcamaf-supply = <&mt_pmic_vcamaf_ldo_reg>;
 			vcamio-supply = <&mt_pmic_vcamio_ldo_reg>;
-			vgp3-supply = <&mt_pmic_vgp3_ldo_reg>;
+			vgp2-supply = <&mt_pmic_vgp2_ldo_reg>;
 
 		};
 		kd_camera_hw2:kd_camera_hw2@15008000 {

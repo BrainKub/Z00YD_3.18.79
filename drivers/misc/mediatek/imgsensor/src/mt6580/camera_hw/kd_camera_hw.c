@@ -346,9 +346,9 @@ int kdCISModulePowerOn(CAMERA_DUAL_CAMERA_SENSOR_ENUM SensorIdx, char *currSenso
 			}
 
         mdelay(10);
-                       /* vgp3 */
-                       if (TRUE != _hwPowerOn(VGP3, VOL_1800)) {//STAS
-					PK_ERR("GC2755 [CAMERA SENSOR] Fail to enable digital power VGP3\n");
+                       /* vgp2 */
+                       if (TRUE != _hwPowerOn(VGP2, VOL_1800)) {//STAS
+					PK_ERR("GC2755 [CAMERA SENSOR] Fail to enable digital power VGP2\n");
 					goto _kdCISModulePowerOn_exit_;
 			}
    mdelay(50);
@@ -702,7 +702,7 @@ else  if (currSensorName && (0 == strcmp(SENSOR_DRVNAME_GC2355_MIPI_RAW, currSen
 			}
          mdelay(1);
 
-                        if (TRUE != _hwPowerDown(VGP3)) {
+                        if (TRUE != _hwPowerDown(VGP2)) {
 				PK_DBG
 				    ("[CAMERA SENSOR] Fail to OFF analog power (VCAM_A),power id= (%d)\n",
 				     VCAMA);
